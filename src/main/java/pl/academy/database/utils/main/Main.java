@@ -10,55 +10,50 @@ import javax.persistence.NoResultException;
 
 public class Main {
     public static void main(String[] args) {
-
-
-       selectOnerun();
-
-
-
+        insertOneRun();
+        selectOneRun();
         HibernaeUtils
                 .getInstance()
                 .getSessionFactory()
                 .close();
-
     }
 
-    private static void insertOneRun(){
+    private static void insertOneRun() {
         Run run = new Run();
-        run.setName("pieg pierwszy");
-        run.setMembersLimit(1005);
+        run.setName("Rzeszowska piątka");
+        run.setMembersLimit(1000);
 
         SessionFactory sessionFactory = HibernaeUtils
                 .getInstance()
                 .getSessionFactory();
-
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
         session.saveOrUpdate(run);
         session.getTransaction().commit();
         session.close();
-
     }
 
-    private static void selectOnerun(){
+    private static void selectOneRun() {
         SessionFactory factory = HibernaeUtils
                 .getInstance()
                 .getSessionFactory();
         Session session = factory.getCurrentSession();
+
         session.beginTransaction();
         Run run = null;
         try {
-           run = session
-                    .createQuery("from Run where id=.id", Run.class)
-                    .setParameter("id", 1l)
+            run = session
+                    .createQuery("from Run where id=:id", Run.class)
+                    .setParameter("id", 17l)
                     .getSingleResult();
-        } catch (NoResultException e) { }
+        }catch (NoResultException e) {}
 
         session.getTransaction().commit();
         session.close();
-//        if (run != null){
-//            System.out.println("bieg " + run.getId() + " nieistnieje" );
-//        }
-//        System.out.println("bieg" + run.getName());
-   }
+        if(run != null) {
+            System.out.println("Bieg: " + run.getName());
+        } else {
+            System.out.println("Brak takiego biegu");
+        }
+    }
 }
