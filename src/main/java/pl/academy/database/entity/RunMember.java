@@ -8,7 +8,7 @@ import javax.persistence.*;
 public class RunMember {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
     @Column(length = 100)
     private String name;
     @Column(name = "start_number")
@@ -18,17 +18,17 @@ public class RunMember {
 
     }
 
-    public RunMember(int id, String name, Integer startNumber) {
+    public RunMember(Long id, String name, Integer startNumber) {
         this.id = id;
         this.name = name;
         this.startNumber = startNumber;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
