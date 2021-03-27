@@ -8,13 +8,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface RunMemberDao {
+    void save(RunMember member);
+    RunMember findById(Long id);
+    List<RunMember> findAll();
+    void deleteById(Long id);
 
-    void save(RunMember member) throws SQLException;
-    RunMember findById(Long id) throws SQLException;;
-    List<RunMember> findALl() throws SQLException;;
-    void deleteById(Long id) throws SQLException;
-
-    List<RunMember> findByNameFragment(String fragment) throws SQLDataException;
-
+    List<RunMember> findByNameFragment(String fragment);
 }
+
 

@@ -14,19 +14,20 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class RunMemberDaoImpl implements RunMemberDao {
-    public void save(RunMember member) throws SQLException {
+    public void save(RunMember member) {
         Session session = HibernateUtils
                 .getInstance()
                 .getSessionFactory()
                 .getCurrentSession();
         session.beginTransaction();
+
         session.saveOrUpdate(member);
+
         session.getTransaction().commit();
         session.close();
-
     }
 
-    public RunMember findById(Long id) throws SQLException {
+    public RunMember findById(Long id) {
         Session session = HibernateUtils
                 .getInstance()
                 .getSessionFactory()
@@ -38,58 +39,61 @@ public class RunMemberDaoImpl implements RunMemberDao {
                 .setParameter("id", id)
                 .uniqueResultOptional()
                 .orElse(null);
-        session.getTransaction()
-                .commit();
+
+        session.getTransaction().commit();
         session.close();
 
         return member;
     }
 
-    public List<RunMember> findALl() throws SQLException {
+    public List<RunMember> findAll() {
         Session session = HibernateUtils
                 .getInstance()
                 .getSessionFactory()
                 .getCurrentSession();
         session.beginTransaction();
 
-        List<RunMember> runList = session
+        List<RunMember> list = session
                 .createQuery("from RunMember", RunMember.class)
                 .list();
 
         session.getTransaction().commit();
         session.close();
-        return runList;
+
+        return list;
     }
 
-    public void deleteById(Long id) throws SQLException {
-        SessionFactory sessionFactory = HibernateUtils
-                .getInstance()
-                .getSessionFactory();
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        RunMember run = null;
-        run = session
-                .createQuery("from Run where id=:id", RunMember.class)
-                .setParameter("id", id)
-                .getSingleResult();
-        session.delete(run);
-        session.getTransaction().commit();
-        session.close();
-    }
-
-    public List<RunMember> findByNameFragment(String fragment) throws SQLDataException {
+    public void deleteById(Long id) {
         Session session = HibernateUtils
                 .getInstance()
                 .getSessionFactory()
                 .getCurrentSession();
         session.beginTransaction();
-        List<RunMember> runList = session
-                .createQuery("from Run where name like :name",RunMember.class)
+
+        session
+                .createQuery("delete RunMember where id=:id")
+                .setParameter("id", id)
+                .executeUpdate();
+
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    public List<RunMember> findByNameFragment(String fragment) {
+        Session session = HibernateUtils
+                .getInstance()
+                .getSessionFactory()
+                .getCurrentSession();
+        session.beginTransaction();
+
+        List<RunMember> list = session
+                .createQuery("from RunMember where name like :name", RunMember.class)
                 .setParameter("name", "%" + fragment + "%")
                 .list();
+
         session.getTransaction().commit();
         session.close();
 
-        return runList;
+        return list;
     }
 }

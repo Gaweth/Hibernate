@@ -6,10 +6,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface RunDao {
-    void save(Run run) throws SQLException;
-    Run findById(Long id) throws SQLException;;
-    List<Run> findALl() throws SQLException;;
-    void deleteById(Long id) throws SQLException;
-    List<Run> findRunsWithMembersLimitRange(int min, int max) throws SQLException;
-    List<Run> findByNameFragment(String fragment) throws SQLException;
+    void save(Run run);
+    Run findById(Long id);
+    List<Run> findAll();
+    void deleteById(Long id);
+    List<Run> findRunsWithMembersLimitRange(int min, int max);
 }

@@ -14,10 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 class RunDaoImplTest {
-    private RunDaoImpl runDao = new RunDaoImpl();
+
+    RunDaoImpl runDao = new RunDaoImpl();
 
     @BeforeEach
-    private void deleteAll() throws SQLException {
+    private void clearTable() {
         SessionFactory factory = HibernateUtils
                 .getInstance()
                 .getSessionFactory();
@@ -31,130 +32,64 @@ class RunDaoImplTest {
     }
 
     @Test
-    void save() throws SQLException {
-        Run run = new Run(null, "Testowy bieg", 99);
-        try {
-            runDao.save(run);
-            Run saved = runDao.findById(run.getId());
+    void save() {
+        Run run = new Run(null, "Nowy bieg testowy", 100, 5);
+        runDao.save(run);
 
-            assertNotNull(saved);
-            assertEquals(run.getId(), saved.getId());
-            assertEquals(run.getName(), saved.getName());
-            assertEquals(run.getMembersLimit(), saved.getMembersLimit());
-        } catch (SQLException e) {
-            fail(e);
-        }
+        Run saved = runDao.findById(run.getId());
+        Run notSaved = runDao.findById(888l);
+
+        assertNotNull(saved);
+        assertNull(notSaved);
     }
 
     @Test
-    void findById() throws SQLException {
+    void findAll() {
+        Run run1 = new Run(null, "Nowy bieg testowy", 100, 5);
+        Run run2 = new Run(null, "Nowy bieg testowy", 100, 5);
 
+        runDao.save(run1);
+        runDao.save(run2);
 
-    }
+        List<Run> list = runDao.findAll();
+        assertNotNull(list);
+        assertEquals(2, list.size());
 
-
-    @Test
-    void findAll() throws SQLException {
-        try {
-            Run run1 = new Run(null, "Bieg numer 100", 99);
-            Run run2 = new Run(null, "Inny bieg", 20);
-
-            runDao.save(run1);
-            runDao.save(run2);
-
-            List<Run> runList = runDao.findALl();
-
-            assertNotNull(runList);
-            assertEquals(2, runList.size());
-
-            Run testRun1 = null;
-            if (runList.get(0).getId() == run1.getId()) {
-                testRun1 = runList.get(0);
-            } else if (runList.get(1).getId() == run1.getId()) {
-                testRun1 = runList.get(1);
-            }
-
-            assertNotNull(testRun1);
-            assertEquals(run1.getId(), testRun1.getId());
-            assertEquals(run1.getName(), testRun1.getName());
-            assertEquals(run1.getMembersLimit(), testRun1.getMembersLimit());
-
-        } catch (SQLException e) {
-            fail(e);
+        Run tested = null;
+        if(list.get(0).getId().equals(run1.getId())) {
+            tested = list.get(0);
+        } else if (list.get(1).getId().equals(run1.getId())) {
+            tested = list.get(1);
         }
+
+        assertNotNull(tested);
     }
 
     @Test
-    void deleteById() throws SQLException {
-        Run run = new Run(null, "Bieg do usuniecia", 100);
-        try {
-            runDao.save(run);
-            runDao.deleteById(run.getId());
-            Run deleted = runDao.findById(run.getId());
+    void deleteById() {
+        Run run = new Run(null, "Nowy bieg testowy", 100, 5);
+        runDao.save(run);
 
-            assertNull(deleted);
-        } catch (SQLException e) {
-            fail(e);
-        }
+        assertNotNull(run.getId());
+
+        runDao.deleteById(run.getId());
+        Run deleted = runDao.findById(run.getId());
+
+        assertNull(deleted);
     }
 
     @Test
     void findRunsWithMembersLimitRange() {
-        try {
-            Run run1 = new Run(null, "bieg", 50);
-            Run run2 = new Run(null, "zbieg2", 100);
-            Run run3 = new Run(null, "wielki bieg", 150);
+        Run run1 = new Run(null, "Nowy bieg testowy", 50, 5);
+        Run run2 = new Run(null, "Nowy bieg testowy", 100, 5);
+        Run run3 = new Run(null, "Nowy bieg testowy", 150, 5);
 
-            runDao.save(run1);
-            runDao.save(run2);
-            runDao.save(run3);
+        runDao.save(run1);
+        runDao.save(run2);
+        runDao.save(run3);
 
-            List<Run> found1 = runDao.findRunsWithMembersLimitRange(40, 80);
-            assertNotNull(found1);
-            assertEquals(1, found1.size());
-            assertEquals(run1.getId(), found1.get(0).getId());
-            assertEquals(run1.getName(), found1.get(0).getName());
-            assertEquals(run1.getMembersLimit(), found1.get(0).getMembersLimit());
-
-            List<Run> found2 = runDao.findRunsWithMembersLimitRange(40, 200);
-            assertEquals(3, found2.size());
-
-            List<Run> found3 = runDao.findRunsWithMembersLimitRange(156, 200);
-            assertEquals(0, found3.size());
-
-
-        } catch (SQLException e) {
-            fail(e);
-        }
-    }
-
-    @Test
-    void findByNameFragment() {
-
-        try {
-            Run run1 = new Run(null, "maly bieg", 50);
-            Run run2 = new Run(null, "zbieg2", 50);
-
-            runDao.save(run1);
-            runDao.save(run2);
-
-            List<Run> found1 = runDao.findByNameFragment("maly");
-            assertNotNull(found1);
-            assertEquals(1, found1.size());
-            assertEquals(run1.getId(), found1.get(0).getId());
-            assertEquals(run1.getName(), found1.get(0).getName());
-            assertEquals(run1.getMembersLimit(), found1.get(0).getMembersLimit());
-
-            List<Run> found2 = runDao.findByNameFragment("ieg");
-            assertNotNull(found2);
-            assertEquals(2, found2.size());
-
-            List<Run> found3 = runDao.findByNameFragment("fhgdh");
-            assertNotNull(found3);
-            assertEquals(0, found3.size());
-
-        } catch (SQLException e) {
-            fail(e);
-        }
+        assertEquals(1, runDao.findRunsWithMembersLimitRange(90, 110).size());
+        assertEquals(3, runDao.findRunsWithMembersLimitRange(49, 160).size());
+        assertEquals(0, runDao.findRunsWithMembersLimitRange(160, 200).size());
     }
 }

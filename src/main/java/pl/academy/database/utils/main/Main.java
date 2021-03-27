@@ -18,11 +18,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
 
-
-        //oneToManyTest();
-        oneTomanySelectTest();
+        nfcTagReadTest();
 
         HibernateUtils
                 .getInstance()
@@ -30,69 +28,72 @@ public class Main {
                 .close();
     }
 
-    private static void manyToManySaveTest() throws SQLException {
+    private static void nfcTagReadTest() {
+        NfcTagDao nfcTagDao = new NfcTagDaoImpl();
+        NfcTag tag = nfcTagDao.findById(29l);
+
+        System.out.println("Tag: " + tag.getSerialNumber());
+        for(RunMember runMember : tag.getMembers()) {
+            System.out.println("Uczestnik: " + runMember.getName());
+            if(runMember.getRun() != null) {
+                System.out.println("Uczestnik bieg: " + runMember.getRun().getName());
+            }
+        }
+    }
+
+    private static void manyToManySaveTest() {
         RunMemberDao runMemberDao = new RunMemberDaoImpl();
         NfcTagDao nfcTagDao = new NfcTagDaoImpl();
 
         RunMember member1 = new RunMember();
         member1.setName("Adam");
+
         RunMember member2 = new RunMember();
-        member2.setName("wojciech");
+        member2.setName("Wojciech");
 
         runMemberDao.save(member1);
         runMemberDao.save(member2);
 
         NfcTag tag1 = new NfcTag();
-
-        tag1.setSerialNumber("tag number 1");
+        tag1.setSerialNumber("tag numer 1");
         tag1.getMembers().add(member1);
         tag1.getMembers().add(member2);
         nfcTagDao.save(tag1);
 
-        NfcTag tag2= new NfcTag();
-        tag2.setSerialNumber("tag number 2");
+        NfcTag tag2 = new NfcTag();
+        tag2.setSerialNumber("tag numer 2");
         tag2.getMembers().add(member1);
         tag2.getMembers().add(member2);
         nfcTagDao.save(tag2);
-
-
-
     }
 
-
-    private static void oneToManyTest() throws SQLException {
-        RunDao runDao = new RunDaoImpl();
-        RunMemberDao runMemberDao = new RunMemberDaoImpl();
-
-        Run run = new Run();
-        run.setName("bieg na 10 ");
-
-        runDao.save(run);
-
-        for (int i = 0; i < 10; i++) {
-
-            RunMember member = new RunMember();
-            member.setName("biegacz do biegu z wieloma" + i);
-            runMemberDao.save(member);
-
-            member.setRun(run);
-            runMemberDao.save(member);
-        }
-
+    private static void oneToManySaveTest() {
+//        RunDao runDao = new RunDaoImpl();
+//        RunMemberDao runMemberDao = new RunMemberDaoImpl();
+//
+//        Run run = new Run();
+//        run.setName("Bieg na 10");
+//        runDao.save(run);
+//
+//        for(int i = 0; i < 10; i++) {
+//            RunMember member = new RunMember();
+//            member.setName("Biegacz numer " + i);
+//            member.setRun(run);
+//            runMemberDao.save(member);
+//        }
     }
 
-    static void oneTomanySelectTest() throws SQLException {
+    static void oneToManySelectTest() {
         RunDao runDao = new RunDaoImpl();
 
-        Run run = runDao.findById(117l);
+        Run run = runDao.findById(15l);
 
-        System.out.printf("bieg" + run.getName());
-        System.out.printf("ilosc uczestnikow = " + run.getMembers().size());
-
-
+        System.out.println("Bieg: " + run.getName());
+        System.out.println("Ilosc uczestnikow: " + run.getMembers().size());
     }
 
-    public static void insertOneRun() {
+
+    private static void insertOneRun() {
         Run run = new Run();
         run.setName("Rzeszowska piątka");
         run.setMembersLimit(1000);
@@ -118,7 +119,7 @@ public class Main {
         try {
             run = session
                     .createQuery("from Run where id=:id", Run.class)
-                    .setParameter("id", 17l)
+                    .setParameter("id", 17)
                     .getSingleResult();
         }catch (NoResultException e) {}
 
@@ -131,7 +132,7 @@ public class Main {
         }
     }
 
-    private static void printAllRuns(){
+    private static void printAllRuns() {
         SessionFactory factory = HibernateUtils
                 .getInstance()
                 .getSessionFactory();
@@ -142,12 +143,25 @@ public class Main {
                 .list();
         session.getTransaction().commit();
         session.close();
-        for (Run run: list) {
+
+        for(Run run : list) {
             System.out.printf("id=%d name=%s limit=%d \n",
                     run.getId(),
                     run.getName(),
                     run.getMembersLimit());
         }
+    }
 
+    private static void deleteAll() {
+        SessionFactory factory = HibernateUtils
+                .getInstance()
+                .getSessionFactory();
+        Session session = factory.getCurrentSession();
+        session.beginTransaction();
+        session
+                .createQuery("delete Run")
+                .executeUpdate();
+        session.getTransaction().commit();
+        session.close();
     }
 }

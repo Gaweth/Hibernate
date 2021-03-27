@@ -11,3 +11,4 @@ public interface NfcTagDao {
     List<NfcTag> findAll();
     void deleteById(Long id);
 }
+

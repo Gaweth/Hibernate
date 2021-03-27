@@ -9,111 +9,85 @@ import pl.academy.database.utils.HibernateUtils;
 import javax.persistence.NoResultException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class RunDaoImpl implements RunDao {
-
-
-    public void save(Run run) throws  SQLException {
-
+    public void save(Run run) {
         Session session = HibernateUtils
                 .getInstance()
                 .getSessionFactory()
                 .getCurrentSession();
         session.beginTransaction();
-        session.saveOrUpdate(run);
+        session.save(run);
         session.getTransaction().commit();
         session.close();
+    }
 
-        }
-
-    public Run findById(Long id) throws  SQLException {
+    public Run findById(Long id) {
         Session session = HibernateUtils
                 .getInstance()
                 .getSessionFactory()
                 .getCurrentSession();
         session.beginTransaction();
-        Run run = null;
-        try {
-            run = session
-                    .createQuery("from Run where id=:id", Run.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-        }
-        session.getTransaction().commit();
-        session.close();
-        return run;
-    }
 
-
-    public List<Run> findALl() throws  SQLException {
-        SessionFactory sessionFactory = HibernateUtils
-                .getInstance()
-                .getSessionFactory();
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-
-        List<Run> runList = session
-                .createQuery("from Run", Run.class)
-                .list();
-
-        session.getTransaction().commit();
-        session.close();
-        return runList;
-    }
-
-
-    public void deleteById(Long id) throws  SQLException {
-        SessionFactory sessionFactory = HibernateUtils
-                .getInstance()
-                .getSessionFactory();
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        Run run = null;
-        run = session
+        Optional<Run> run = session
                 .createQuery("from Run where id=:id", Run.class)
                 .setParameter("id", id)
-                .getSingleResult();
-        session.delete(run);
+                .uniqueResultOptional();
+
         session.getTransaction().commit();
         session.close();
+
+        return run.orElse(null);
     }
 
-    public List<Run> findRunsWithMembersLimitRange(int min, int max) throws SQLException {
+    public List<Run> findAll() {
         Session session = HibernateUtils
                 .getInstance()
                 .getSessionFactory()
                 .getCurrentSession();
         session.beginTransaction();
-        List<Run> runList = session
+
+        List<Run> list = session.createQuery("from Run", Run.class).list();
+
+        session.getTransaction().commit();
+        session.close();
+
+        return list;
+    }
+
+    public void deleteById(Long id) {
+        Session session = HibernateUtils
+                .getInstance()
+                .getSessionFactory()
+                .getCurrentSession();
+        session.beginTransaction();
+
+        session
+                .createQuery("delete Run where id=:id")
+                .setParameter("id", id)
+                .executeUpdate();
+
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    public List<Run> findRunsWithMembersLimitRange(int min, int max) {
+        Session session = HibernateUtils
+                .getInstance()
+                .getSessionFactory()
+                .getCurrentSession();
+        session.beginTransaction();
+
+        List<Run> list = session
                 .createQuery("from Run where membersLimit > :min and membersLimit < :max", Run.class)
-                .setParameter("min", min)
                 .setParameter("max", max)
+                .setParameter("min", min)
                 .list();
 
         session.getTransaction().commit();
         session.close();
 
-
-        return runList;
+        return list;
     }
-
-    public List<Run> findByNameFragment(String fragment) throws SQLException {
-        Session session = HibernateUtils
-                .getInstance()
-                .getSessionFactory()
-                .getCurrentSession();
-        session.beginTransaction();
-        List<Run> runList = session
-                .createQuery("from Run where name like :name",Run.class)
-                .setParameter("name", "%" + fragment + "%")
-                .list();
-        session.getTransaction().commit();
-        session.close();
-
-        return runList;
-
-    }
-
 }
-

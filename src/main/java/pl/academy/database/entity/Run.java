@@ -7,36 +7,26 @@ import java.util.Set;
 @Entity
 @Table(name = "RUN")
 public class Run {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @Column(length = 100)
     private String name;
-
     @Column(name = "members_limit")
     private Integer membersLimit;
+    private Integer distance;
 
     @OneToMany(mappedBy = "run", fetch = FetchType.EAGER)
     private Set<RunMember> members = new HashSet<>();
 
-
-
-    public void setMembersLimit(Integer membersLimit) {
-        this.membersLimit = membersLimit;
-    }
-
-
     public Run() {
-
     }
 
-    public Run(Long id, String name, int membersLimit) {
+    public Run(Long id, String name, Integer membersLimit, Integer distance) {
         this.id = id;
         this.name = name;
         this.membersLimit = membersLimit;
-
+        this.distance = distance;
     }
 
     public Set<RunMember> getMembers() {
@@ -45,6 +35,14 @@ public class Run {
 
     public void setMembers(Set<RunMember> members) {
         this.members = members;
+    }
+
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
     }
 
     public Long getId() {
@@ -63,11 +61,11 @@ public class Run {
         this.name = name;
     }
 
-    public int getMembersLimit() {
+    public Integer getMembersLimit() {
         return membersLimit;
     }
 
-    public void setMembersLimit(int membersLimit) {
+    public void setMembersLimit(Integer membersLimit) {
         this.membersLimit = membersLimit;
     }
 }
