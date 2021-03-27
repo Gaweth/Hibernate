@@ -1,8 +1,11 @@
 package pl.academy.database.utils.main;
 
 import pl.academy.database.dao.RunDao;
+import pl.academy.database.dao.RunMemberDao;
 import pl.academy.database.daoimpl.RunDaoImpl;
+import pl.academy.database.daoimpl.RunMemberDaoImpl;
 import pl.academy.database.entity.Run;
+import pl.academy.database.entity.RunMember;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -40,18 +43,62 @@ public class RunCenter {
     }
 
     private static void handleFindRunMemeberByStartNumber() {
+
     }
 
     private static void handleDeleteRunMember() {
     }
 
     private static void handleShowAllRunMembers() {
+        RunMemberDao runMemberDao = new RunMemberDaoImpl();
+        List<RunMember> list = runMemberDao.findAll();
+
+        log("Lista uczestnikow");
+        log("---------------");
+        for(RunMember run : list) {
+            log(
+                    run.getId() + " " +
+                            run.getName()  + " "
+
+            );
+        }
+        log("----------------");
     }
 
+
     private static void handleAddRunMember() {
+        Scanner scanner = new Scanner(System.in);
+        RunDao runDao = new RunDaoImpl();
+
+        log("podaj ip biegu");
+        long runId = scanner.nextLong();
+
+        Run run = runDao.findById(runId);
+        log("uczestnicy to " + run.getName());
+        for (RunMember member : run.getMembers()) {
+            log(member.getId()) + member.getName() + " " +member.getStartNumber();
+        }
+
+
+
     }
 
     private static void handleDeleteRun() {
+
+        Scanner scanner = new Scanner(System.in);
+        RunDao runDao = new RunDaoImpl();
+       RunMemberDao memberDao = new RunMemberDaoImpl();
+
+        log("Podaj nazwę biegu");
+        long runId = scanner.nextLong();
+        Run run = runDao.findById(runId);
+
+        for (RunMember member : run.getMembers())
+        {
+            memberDao.deleteById(member.getId());
+        }
+
+        runDao.deleteById(runId);
 
     }
 
