@@ -2,10 +2,13 @@ package pl.academy.database.utils.main;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import pl.academy.database.dao.NfcTagDao;
 import pl.academy.database.dao.RunDao;
 import pl.academy.database.dao.RunMemberDao;
+import pl.academy.database.daoimpl.NfcTagDaoImpl;
 import pl.academy.database.daoimpl.RunDaoImpl;
 import pl.academy.database.daoimpl.RunMemberDaoImpl;
+import pl.academy.database.entity.NfcTag;
 import pl.academy.database.entity.Run;
 import pl.academy.database.entity.RunMember;
 import pl.academy.database.utils.HibernateUtils;
@@ -26,6 +29,36 @@ public class Main {
                 .getSessionFactory()
                 .close();
     }
+
+    private static void manyToManySaveTest() throws SQLException {
+        RunMemberDao runMemberDao = new RunMemberDaoImpl();
+        NfcTagDao nfcTagDao = new NfcTagDaoImpl();
+
+        RunMember member1 = new RunMember();
+        member1.setName("Adam");
+        RunMember member2 = new RunMember();
+        member2.setName("wojciech");
+
+        runMemberDao.save(member1);
+        runMemberDao.save(member2);
+
+        NfcTag tag1 = new NfcTag();
+
+        tag1.setSerialNumber("tag number 1");
+        tag1.getMembers().add(member1);
+        tag1.getMembers().add(member2);
+        nfcTagDao.save(tag1);
+
+        NfcTag tag2= new NfcTag();
+        tag2.setSerialNumber("tag number 2");
+        tag2.getMembers().add(member1);
+        tag2.getMembers().add(member2);
+        nfcTagDao.save(tag2);
+
+
+
+    }
+
 
     private static void oneToManyTest() throws SQLException {
         RunDao runDao = new RunDaoImpl();
