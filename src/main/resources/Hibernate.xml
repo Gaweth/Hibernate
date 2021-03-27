@@ -17,6 +17,7 @@
 
         <mapping class="pl.academy.database.entity.Run" />
         <mapping class="pl.academy.database.entity.RunMember" />
+        <mapping class="pl.academy.database.entity.NfcTag" />
 
         </session-factory>
         </hibernate-configuration>

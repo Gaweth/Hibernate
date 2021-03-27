@@ -6,19 +6,19 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
-public class HibernaeUtils {
-    private static HibernaeUtils instance;
+public class HibernateUtils {
+    private static HibernateUtils instance;
 
     private SessionFactory sessionFactory;
 
-    public static HibernaeUtils getInstance() {
+    public static HibernateUtils getInstance() {
         if(instance == null) {
-            instance = new HibernaeUtils();
+            instance = new HibernateUtils();
         }
         return instance;
     }
 
-    private HibernaeUtils(){
+    private HibernateUtils(){
         StandardServiceRegistry standardRegistry = new StandardServiceRegistryBuilder()
                 .configure("Hibernate.xml")
                 .build();

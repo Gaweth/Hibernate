@@ -1,27 +1,36 @@
 package pl.academy.database.entity;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "run_member")
-
+@Table(name = "RUN_MEMBER")
 public class RunMember {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(length = 100)
     private String name;
     @Column(name = "start_number")
     private Integer startNumber;
 
-    public RunMember() {
+    @ManyToOne
+    @JoinColumn(name = "id_run")
+    private Run run;
 
+    @ManyToMany(mappedBy = "members")
+    private Set<NfcTag> tags = new HashSet<>();
+
+    public RunMember() {
     }
 
-    public RunMember(Long id, String name, Integer startNumber) {
-        this.id = id;
-        this.name = name;
-        this.startNumber = startNumber;
+    public Set<NfcTag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<NfcTag> tags) {
+        this.tags = tags;
     }
 
     public Long getId() {
@@ -30,6 +39,14 @@ public class RunMember {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Run getRun() {
+        return run;
+    }
+
+    public void setRun(Run run) {
+        this.run = run;
     }
 
     public String getName() {

@@ -2,28 +2,69 @@ package pl.academy.database.utils.main;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import pl.academy.database.dao.RunDao;
+import pl.academy.database.dao.RunMemberDao;
+import pl.academy.database.daoimpl.RunDaoImpl;
+import pl.academy.database.daoimpl.RunMemberDaoImpl;
 import pl.academy.database.entity.Run;
 import pl.academy.database.entity.RunMember;
-import pl.academy.database.utils.HibernaeUtils;
+import pl.academy.database.utils.HibernateUtils;
 
 import javax.persistence.NoResultException;
+import java.sql.SQLException;
+import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
-        insertOneRun();
-        selectOneRun();
-        HibernaeUtils
+    public static void main(String[] args) throws SQLException {
+
+
+        //oneToManyTest();
+        oneTomanySelectTest();
+
+        HibernateUtils
                 .getInstance()
                 .getSessionFactory()
                 .close();
     }
 
-    private static void insertOneRun() {
+    private static void oneToManyTest() throws SQLException {
+        RunDao runDao = new RunDaoImpl();
+        RunMemberDao runMemberDao = new RunMemberDaoImpl();
+
+        Run run = new Run();
+        run.setName("bieg na 10 ");
+
+        runDao.save(run);
+
+        for (int i = 0; i < 10; i++) {
+
+            RunMember member = new RunMember();
+            member.setName("biegacz do biegu z wieloma" + i);
+            runMemberDao.save(member);
+
+            member.setRun(run);
+            runMemberDao.save(member);
+        }
+
+    }
+
+    static void oneTomanySelectTest() throws SQLException {
+        RunDao runDao = new RunDaoImpl();
+
+        Run run = runDao.findById(117l);
+
+        System.out.printf("bieg" + run.getName());
+        System.out.printf("ilosc uczestnikow = " + run.getMembers().size());
+
+
+    }
+
+    public static void insertOneRun() {
         Run run = new Run();
         run.setName("Rzeszowska piątka");
         run.setMembersLimit(1000);
 
-        SessionFactory sessionFactory = HibernaeUtils
+        SessionFactory sessionFactory = HibernateUtils
                 .getInstance()
                 .getSessionFactory();
         Session session = sessionFactory.getCurrentSession();
@@ -34,7 +75,7 @@ public class Main {
     }
 
     private static void selectOneRun() {
-        SessionFactory factory = HibernaeUtils
+        SessionFactory factory = HibernateUtils
                 .getInstance()
                 .getSessionFactory();
         Session session = factory.getCurrentSession();
@@ -55,5 +96,25 @@ public class Main {
         } else {
             System.out.println("Brak takiego biegu");
         }
+    }
+
+    private static void printAllRuns(){
+        SessionFactory factory = HibernateUtils
+                .getInstance()
+                .getSessionFactory();
+        Session session = factory.getCurrentSession();
+        session.beginTransaction();
+        List<Run> list = session
+                .createQuery("from Run", Run.class)
+                .list();
+        session.getTransaction().commit();
+        session.close();
+        for (Run run: list) {
+            System.out.printf("id=%d name=%s limit=%d \n",
+                    run.getId(),
+                    run.getName(),
+                    run.getMembersLimit());
+        }
+
     }
 }
