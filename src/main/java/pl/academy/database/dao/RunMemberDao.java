@@ -9,11 +9,18 @@ import java.util.List;
 
 public interface RunMemberDao {
     void save(RunMember member);
+
     RunMember findById(Long id);
+
     List<RunMember> findAll();
+
     void deleteById(Long id);
 
     List<RunMember> findByNameFragment(String fragment);
+
+    List<RunMember> findByStartNumberAndRunId(Integer startNumber, Long runId);
 }
+
+
 
 

@@ -96,4 +96,23 @@ public class RunMemberDaoImpl implements RunMemberDao {
 
         return list;
     }
+
+    public List<RunMember> findByStartNumberAndRunId(Integer startNumber, Long runId) {
+        Session session = HibernateUtils
+                .getInstance()
+                .getSessionFactory()
+                .getCurrentSession();
+        session.beginTransaction();
+
+        List<RunMember> list = session
+                .createQuery("from RunMember where startNumber=:startNumber and run.id=:runId", RunMember.class)
+                .setParameter("startNumber", startNumber)
+                .setParameter("runId", runId)
+                .list();
+
+        session.getTransaction().commit();
+        session.close();
+
+        return list;
+    }
 }

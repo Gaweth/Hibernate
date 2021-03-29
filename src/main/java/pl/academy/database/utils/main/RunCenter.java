@@ -25,8 +25,6 @@ public class RunCenter {
             log("[6] Usuń uczestnika");
             log("[7] Wyszukaj uczestnika po numerze startowym");
 
-
-
             log("[0] Wyjście");
             selected = scanner.nextInt();
 
@@ -34,72 +32,102 @@ public class RunCenter {
                 case 1: handleAddNewRun(); break;
                 case 2: handleShowAllRuns(); break;
                 case 3: handleDeleteRun(); break;
-                case 4: handleShowAllRunMembers(); break;
-                case 5: handleAddRunMember(); break;
+                case 4: handleShowRunMembers(); break;
+                case 5: handleAddMemberToRun(); break;
                 case 6: handleDeleteRunMember(); break;
-                case 7: handleFindRunMemeberByStartNumber(); break;
+                case 7: handleFindRunMemberByStartNumber(); break;
             }
         } while (selected != 0);
     }
 
-    private static void handleFindRunMemeberByStartNumber() {
+    private static void handleFindRunMemberByStartNumber() {
+        Scanner scanner = new Scanner(System.in);
+        RunMemberDao memberDao = new RunMemberDaoImpl();
 
+        log("Podaj id biegu");
+        long idRun = scanner.nextLong();
+
+        log("Podaj numer startowy");
+        int startNumber = scanner.nextInt();
+
+        List<RunMember> members = memberDao.findByStartNumberAndRunId(startNumber, idRun);
+        for(RunMember member : members) {
+            log(member.getId() + " " + member.getName());
+        }
     }
 
     private static void handleDeleteRunMember() {
-    }
+        Scanner scanner = new Scanner(System.in);
+        RunDao runDao = new RunDaoImpl();
+        RunMemberDao memberDao = new RunMemberDaoImpl();
 
-    private static void handleShowAllRunMembers() {
-        RunMemberDao runMemberDao = new RunMemberDaoImpl();
-        List<RunMember> list = runMemberDao.findAll();
-
-        log("Lista uczestnikow");
-        log("---------------");
-        for(RunMember run : list) {
-            log(
-                    run.getId() + " " +
-                            run.getName()  + " "
-
-            );
+        log("Podaj id biegu");
+        long idRun = scanner.nextLong();
+        Run run = runDao.findById(idRun);
+        if(run != null) {
+            for(RunMember member : run.getMembers()) {
+                log(member.getId() + " " + member.getName());
+            }
+            log("Podaj id uczestnika do usuniecia");
+            long memberId = scanner.nextLong();
+            memberDao.deleteById(memberId);
         }
-        log("----------------");
     }
 
+    private static void handleAddMemberToRun() {
+        Scanner scanner = new Scanner(System.in);
+        RunDao runDao = new RunDaoImpl();
+        RunMemberDao memberDao = new RunMemberDaoImpl();
 
-    private static void handleAddRunMember() {
+        log("Podaj id biegu");
+        long idRun = scanner.nextLong();
+        Run run = runDao.findById(idRun);
+
+        if (run != null) {
+            RunMember member = new RunMember();
+
+            log("Podaj nazwę uczestnika");
+            scanner.next();
+            member.setName(scanner.nextLine());
+
+            log("Podaj numer startowy");
+            member.setStartNumber(scanner.nextInt());
+
+            member.setRun(run);
+
+            memberDao.save(member);
+        } else {
+            log("Nie ma takiego biegu");
+        }
+    }
+
+    private static void handleShowRunMembers() {
         Scanner scanner = new Scanner(System.in);
         RunDao runDao = new RunDaoImpl();
 
-        log("podaj ip biegu");
+        log("Podaj id biegu");
         long runId = scanner.nextLong();
 
         Run run = runDao.findById(runId);
-        log("uczestnicy to " + run.getName());
-        for (RunMember member : run.getMembers()) {
-            log(member.getId()) + member.getName() + " " +member.getStartNumber();
+        log("Uczestnicy biegu: " + run.getName());
+        for(RunMember member : run.getMembers()) {
+            log(member.getId() + " " + member.getName() + " " + member.getStartNumber());
         }
-
-
-
     }
 
     private static void handleDeleteRun() {
-
         Scanner scanner = new Scanner(System.in);
         RunDao runDao = new RunDaoImpl();
-       RunMemberDao memberDao = new RunMemberDaoImpl();
+        RunMemberDao memberDao = new RunMemberDaoImpl();
 
-        log("Podaj nazwę biegu");
+        log("Podaj id biegu");
         long runId = scanner.nextLong();
         Run run = runDao.findById(runId);
 
-        for (RunMember member : run.getMembers())
-        {
+        for(RunMember member : run.getMembers()) {
             memberDao.deleteById(member.getId());
         }
-
         runDao.deleteById(runId);
-
     }
 
     private static void log(String text) {
@@ -139,6 +167,4 @@ public class RunCenter {
 
         runDao.save(run);
     }
-    
-    
 }
